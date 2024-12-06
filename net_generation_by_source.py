@@ -104,8 +104,8 @@ def fetch_net_generation_by_source(region: str = "US") -> pl.DataFrame:
             (pl.col("fuelTypeDescription") + " (" + pl.col("fueltypeid") + ")").alias(
                 "fuel_name"
             ),
+            pl.col("period").str.strptime(pl.Date, "%Y-%m"),
         )
-        .with_columns(pl.col("period").str.strptime(pl.Date, "%Y-%m"))
         .filter(~pl.col("fueltypeid").is_in(EXCLUDED_FUEL_TYPES))
         .collect()
     )
