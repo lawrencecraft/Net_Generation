@@ -1,0 +1,5 @@
+polars
+requests
+plotly
+python-dotenv
+click
