@@ -16,7 +16,7 @@ script_path = os.path.dirname(os.path.abspath(__file__))
 
 API_BASE_URL = "https://api.eia.gov/v2"
 
-ROOT_CONTEXT = ["electricity", "electric-power-operational-data"]
+EXCLUDED_FUEL_TYPES = ["ALL"]
 
 
 @dataclass
@@ -36,7 +36,8 @@ class EIARestAPIClient:
         self, context: list[str], parameters: dict | None = None
     ) -> dict:
         target_slug = "/".join(context)
-        target_url = f"{API_BASE_URL}/{target_slug}?api_key={self._access_token}"
+        target_url = f"{
+            API_BASE_URL}/{target_slug}?api_key={self._access_token}"
 
         response = requests.get(
             target_url,
@@ -105,7 +106,7 @@ def fetch_net_generation_by_source(region: str = "US") -> pl.DataFrame:
             ),
         )
         .with_columns(pl.col("period").str.strptime(pl.Date, "%Y-%m"))
-        .filter(pl.col("fueltypeid") != "ALL")
+        .filter(~pl.col("fueltypeid").is_in(EXCLUDED_FUEL_TYPES))
         .collect()
     )
 
@@ -125,17 +126,6 @@ def fetch_location_facet_values() -> list[LocationFacet]:
         ["electricity", "electric-power-operational-data", "facet", "location"]
     )
     return [LocationFacet(**facet) for facet in response["response"]["facets"]]
-
-
-def prep_scatterplot(in_x, indata, title, visible: bool):
-    return go.Scatter(
-        x=in_x,
-        y=indata,
-        mode="lines+markers",
-        name=title,
-        visible=visible,
-        hoverlabel=dict(namelength=-1),
-    )
 
 
 def _scatterplots_for_frame(df: pl.DataFrame, visible: bool = True) -> list:
