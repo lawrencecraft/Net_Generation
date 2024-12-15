@@ -36,8 +36,7 @@ class EIARestAPIClient:
         self, context: list[str], parameters: dict | None = None
     ) -> dict:
         target_slug = "/".join(context)
-        target_url = f"{
-            API_BASE_URL}/{target_slug}?api_key={self._access_token}"
+        target_url = f"{API_BASE_URL}/{target_slug}?api_key={self._access_token}"
 
         response = requests.get(
             target_url,
@@ -46,8 +45,7 @@ class EIARestAPIClient:
 
         if not response.ok:
             raise Exception(
-                f"Unexpected response: status - {
-                    response.status_code} ({response.content})"
+                f"Unexpected response: status - {response.status_code} ({response.content})"
             )
 
         return response.json()
